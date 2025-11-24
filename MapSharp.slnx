@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="MapSharp.SourceGenerator/MapSharp.SourceGenerator.csproj" />
+  <Project Path="MapSharp.Tests/MapSharp.Tests.csproj" />
+  <Project Path="MapSharp/MapSharp.csproj" />
+</Solution>
