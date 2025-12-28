@@ -1,6 +1,11 @@
 # MapSharp
 
-A high-performance, compile-time auto mapper for .NET 10 using source generators.
+[![CI](https://github.com/yourusername/MapSharp/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/MapSharp/actions/workflows/ci.yml)
+[![NuGet](https://img.shields.io/nuget/v/MapSharp.svg)](https://www.nuget.org/packages/MapSharp)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/MapSharp.svg)](https://www.nuget.org/packages/MapSharp)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+A high-performance, compile-time auto mapper for .NET using source generators. Supports .NET 8, .NET 9, and .NET 10.
 
 ## Features
 
@@ -8,19 +13,31 @@ A high-performance, compile-time auto mapper for .NET 10 using source generators
 - 🚀 **High performance** - No reflection, no IL emit, just pure generated code
 - 🎯 **Type-safe** - Compile-time errors for invalid mappings
 - 🔧 **Customizable** - Support for custom property mappings and ignored properties
+- 🔄 **Nested mapping** - Automatically maps complex nested objects
+- 📋 **Collection mapping** - Seamlessly maps lists and collections of objects
+- 🙈 **Auto-ignore** - Unmatched properties are automatically skipped
 - 📦 **Lightweight** - Minimal dependencies
-- 🧪 **Well-tested** - Comprehensive unit test coverage with xUnit
+- 🧪 **Well-tested** - Comprehensive unit test coverage with xUnit (44 tests)
 
 ## Installation
 
-Add the MapSharp package reference to your project:
+Install MapSharp via NuGet:
+
+```bash
+dotnet add package MapSharp
+```
+
+Or via the Package Manager Console:
+
+```powershell
+Install-Package MapSharp
+```
+
+Or add directly to your `.csproj`:
 
 ```xml
 <ItemGroup>
-  <ProjectReference Include="MapSharp\MapSharp.csproj" />
-  <ProjectReference Include="MapSharp.SourceGenerator\MapSharp.SourceGenerator.csproj"
-                    OutputItemType="Analyzer"
-                    ReferenceOutputAssembly="false" />
+  <PackageReference Include="MapSharp" Version="1.0.0" />
 </ItemGroup>
 ```
 
@@ -106,6 +123,89 @@ public partial class UserProfile
     [MapProperty(Ignore = true)]
     public DateTime CreatedAt { get; set; }
 }
+```
+
+### Auto-Ignore Unmatched Properties
+
+Properties that don't exist in the source/target type are automatically ignored - no explicit configuration needed:
+
+```csharp
+public class CustomerDto
+{
+    public string Name { get; set; }
+    public string Email { get; set; }
+}
+
+[MapFrom(typeof(CustomerDto))]
+public partial class Customer
+{
+    public string Name { get; set; }
+    public string Email { get; set; }
+    public DateTime CreatedAt { get; set; } // Auto-ignored - not in CustomerDto
+}
+```
+
+### Nested Object Mapping
+
+Complex nested objects are automatically mapped if they have mapping attributes:
+
+```csharp
+public class AddressDto { /* ... */ }
+public class CustomerDto
+{
+    public string Name { get; set; }
+    public AddressDto? ShippingAddress { get; set; }
+}
+
+[MapFrom(typeof(AddressDto))]
+[MapTo(typeof(AddressDto))]
+public partial class Address { /* ... */ }
+
+[MapFrom(typeof(CustomerDto))]
+[MapTo(typeof(CustomerDto))]
+public partial class Customer
+{
+    public string Name { get; set; }
+    public Address? ShippingAddress { get; set; } // Auto-maps using Address.MapFrom()
+}
+```
+
+### Collection/List Mapping
+
+Collections of mapped types are automatically transformed:
+
+```csharp
+public class OrderItemDto { /* ... */ }
+public class CustomerDto
+{
+    public string Name { get; set; }
+    public List<OrderItemDto>? Orders { get; set; }
+    public List<string>? Tags { get; set; } // Simple types copied directly
+}
+
+[MapFrom(typeof(OrderItemDto))]
+[MapTo(typeof(OrderItemDto))]
+public partial class OrderItem { /* ... */ }
+
+[MapFrom(typeof(CustomerDto))]
+public partial class Customer
+{
+    public string Name { get; set; }
+    public List<OrderItem>? Orders { get; set; } // Each item mapped using OrderItem.MapFrom()
+    public List<string>? Tags { get; set; }      // Copied directly
+}
+```
+
+The generator also creates bulk mapping methods:
+
+```csharp
+// Map a list of DTOs to domain models
+var dtos = new List<CustomerDto> { /* ... */ };
+var customers = Customer.MapFrom(dtos);
+
+// Map a list of domain models to DTOs
+var customers = new List<Customer> { /* ... */ };
+var dtos = Customer.MapTo(customers);
 ```
 
 ### Multiple Mappings
@@ -219,13 +319,39 @@ Run tests with:
 dotnet test MapSharp.Tests/MapSharp.Tests.csproj
 ```
 
+## CI/CD
+
+This project uses GitHub Actions for continuous integration and deployment:
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| **CI** | Push/PR to main/develop | Build, test on multiple platforms |
+| **Publish** | Release published | Build and publish to NuGet.org |
+| **Prerelease** | Push to main | Publish alpha versions to NuGet.org |
+
+### Publishing a Release
+
+1. Update version in `Directory.Build.props`
+2. Create a new GitHub Release with a tag (e.g., `v1.0.0`)
+3. The publish workflow will automatically build and push to NuGet.org
+
+### Required Secrets
+
+- `NUGET_API_KEY`: Your NuGet.org API key with push permissions
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit issues and pull requests.
 
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
 ## License
 
-This project is available for use under your chosen license.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Example Output
 

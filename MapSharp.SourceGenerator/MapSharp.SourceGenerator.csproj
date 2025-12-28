@@ -5,6 +5,19 @@
     <LangVersion>latest</LangVersion>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <IsRoslynComponent>true</IsRoslynComponent>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    
+    <!-- Package Metadata -->
+    <PackageId>MapSharp.SourceGenerator</PackageId>
+    <Description>Source generator for MapSharp - a high-performance, compile-time auto mapper. This package is automatically included when referencing MapSharp.</Description>
+    <IsPackable>true</IsPackable>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    
+    <!-- Include the generator in analyzers folder -->
+    <IncludeBuildOutput>true</IncludeBuildOutput>
+    <IncludeSymbols>false</IncludeSymbols>
+    <BuildOutputTargetFolder>analyzers/dotnet/cs</BuildOutputTargetFolder>
   </PropertyGroup>
 
   <ItemGroup>

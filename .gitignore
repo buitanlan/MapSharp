@@ -38,6 +38,7 @@ bld/
 *.nupkg
 *.snupkg
 **/packages/*
+nupkgs/
 
 # Test Results
 [Tt]est[Rr]esult*/
