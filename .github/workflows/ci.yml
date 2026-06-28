@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, master ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, develop, master ]
 
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
@@ -76,11 +76,12 @@ jobs:
     - name: Build
       run: dotnet build MapSharp.slnx --configuration Release --no-restore
 
-    - name: Pack Source Generator
-      run: dotnet pack MapSharp.SourceGenerator/MapSharp.SourceGenerator.csproj --configuration Release --no-build --output ./nupkgs
-
     - name: Pack MapSharp
       run: dotnet pack MapSharp/MapSharp.csproj --configuration Release --no-build --output ./nupkgs
+
+    - name: Verify analyzer is included in package
+      run: |
+        unzip -l ./nupkgs/MapSharp.*.nupkg | grep -F "analyzers/dotnet/cs/MapSharp.SourceGenerator.dll"
 
     - name: Upload NuGet packages
       uses: actions/upload-artifact@v4

@@ -5,12 +5,12 @@
     <LangVersion>latest</LangVersion>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <IsRoslynComponent>true</IsRoslynComponent>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <NoWarn>$(NoWarn);CS1591;RS2008</NoWarn>
     
     <!-- Package Metadata -->
     <PackageId>MapSharp.SourceGenerator</PackageId>
     <Description>Source generator for MapSharp - a high-performance, compile-time auto mapper. This package is automatically included when referencing MapSharp.</Description>
-    <IsPackable>true</IsPackable>
+    <IsPackable>false</IsPackable>
     <DevelopmentDependency>true</DevelopmentDependency>
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
     

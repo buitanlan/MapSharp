@@ -1,6 +1,6 @@
 # MapSharp
 
-[![CI](https://github.com/yourusername/MapSharp/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/MapSharp/actions/workflows/ci.yml)
+[![CI](https://github.com/buitanlan/MapSharp/actions/workflows/ci.yml/badge.svg)](https://github.com/buitanlan/MapSharp/actions/workflows/ci.yml)
 [![NuGet](https://img.shields.io/nuget/v/MapSharp.svg)](https://www.nuget.org/packages/MapSharp)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/MapSharp.svg)](https://www.nuget.org/packages/MapSharp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -11,13 +11,13 @@ A high-performance, compile-time auto mapper for .NET using source generators. S
 
 - ✨ **Zero runtime overhead** - All mapping code is generated at compile time
 - 🚀 **High performance** - No reflection, no IL emit, just pure generated code
-- 🎯 **Type-safe** - Compile-time errors for invalid mappings
+- 🎯 **Type-safe** - Compile-time diagnostics for invalid mappings
 - 🔧 **Customizable** - Support for custom property mappings and ignored properties
 - 🔄 **Nested mapping** - Automatically maps complex nested objects
 - 📋 **Collection mapping** - Seamlessly maps lists and collections of objects
 - 🙈 **Auto-ignore** - Unmatched properties are automatically skipped
 - 📦 **Lightweight** - Minimal dependencies
-- 🧪 **Well-tested** - Comprehensive unit test coverage with xUnit (44 tests)
+- 🧪 **Well-tested** - Comprehensive unit test coverage with xUnit (49 tests)
 
 ## Installation
 
@@ -216,13 +216,17 @@ You can add multiple mapping attributes to support multiple source/target types:
 [MapFrom(typeof(PersonDto))]
 [MapFrom(typeof(PersonViewModel))]
 [MapTo(typeof(PersonDto))]
+[MapTo(typeof(PersonSummaryDto))]
 public partial class Person
 {
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public int Age { get; set; }
+    public string Email { get; set; }
 }
 ```
+
+When a single `[MapTo]` attribute is used, the generated method is named `MapTo()`. With multiple `[MapTo]` attributes, methods are named after the target type (e.g. `MapToPersonDto()`, `MapToPersonSummaryDto()`).
 
 ## Attributes
 
@@ -247,8 +251,8 @@ Generates an instance `MapTo` method to create a target type instance.
 [MapTo(typeof(TargetType))]
 public partial class SourceType
 {
-    // Generated method:
-    // public TargetType MapTo()
+    // Single MapTo: public TargetType MapTo()
+    // Multiple MapTo: public TargetType MapToTargetType(), public OtherTarget MapToOtherTarget()
 }
 ```
 
@@ -271,7 +275,7 @@ public string IgnoredProperty { get; set; }
 MapSharp uses C# source generators to analyze your code at compile time and generate mapping methods. This approach provides several benefits:
 
 1. **No runtime overhead** - Mapping code is generated during compilation
-2. **Type safety** - Compilation fails if mappings are invalid
+2. **Type safety** - Diagnostics warn about incompatible mappings; non-partial classes produce compile errors
 3. **Debuggable** - You can step through the generated code
 4. **IDE support** - Full IntelliSense and code navigation
 
@@ -296,8 +300,8 @@ dotnet clean MapSharp.slnx
 
 ## Requirements
 
-- .NET 10 SDK or later
-- C# 13 or later
+- .NET 8, .NET 9, or .NET 10 runtime (library targets all three)
+- .NET 10 SDK recommended for building all target frameworks locally
 
 ## Test Coverage
 
@@ -327,7 +331,7 @@ This project uses GitHub Actions for continuous integration and deployment:
 |----------|---------|---------|
 | **CI** | Push/PR to main/develop | Build, test on multiple platforms |
 | **Publish** | Release published | Build and publish to NuGet.org |
-| **Prerelease** | Push to main | Publish alpha versions to NuGet.org |
+| **Prerelease** | Manual workflow dispatch | Publish prerelease versions to NuGet.org |
 
 ### Publishing a Release
 
@@ -410,9 +414,10 @@ Because MapSharp uses source generators, the mapping code is as fast as hand-wri
 | Zero runtime overhead | ✅ | ❌ | ❌ |
 | No reflection | ✅ | ❌ | ❌ |
 | Type safety | ✅ | ⚠️ | ⚠️ |
-| Configuration required | ❌ | ✅ | ✅ |
+| No runtime configuration | ✅ | ❌ | ❌ |
+| Custom mapping configuration | ✅ | ✅ | ✅ |
 
 ---
 
-**MapSharp** - Fast, type-safe, compile-time object mapping for .NET 10
+**MapSharp** - Fast, type-safe, compile-time object mapping for .NET 8+
 

@@ -1,12 +1,12 @@
 name: Publish Prerelease
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'MapSharp/**'
-      - 'MapSharp.SourceGenerator/**'
-      - 'Directory.Build.props'
+  workflow_dispatch:
+    inputs:
+      suffix:
+        description: 'Prerelease suffix (e.g., alpha, beta, rc.1)'
+        required: false
+        default: 'alpha'
 
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
@@ -35,10 +35,8 @@ jobs:
     - name: Generate version
       id: version
       run: |
-        # Get base version from Directory.Build.props
         BASE_VERSION=$(grep -oP '(?<=<VersionPrefix>)[^<]+' Directory.Build.props || echo "1.0.0")
-        # Generate prerelease suffix with timestamp and short SHA
-        SUFFIX="alpha.$(date +%Y%m%d%H%M%S).$(git rev-parse --short HEAD)"
+        SUFFIX="${{ inputs.suffix }}.$(date +%Y%m%d%H%M%S).$(git rev-parse --short HEAD)"
         echo "version=${BASE_VERSION}-${SUFFIX}" >> $GITHUB_OUTPUT
         echo "Generated version: ${BASE_VERSION}-${SUFFIX}"
 
@@ -50,14 +48,6 @@ jobs:
 
     - name: Test
       run: dotnet test MapSharp.slnx --configuration Release --no-build --verbosity normal
-
-    - name: Pack Source Generator
-      run: |
-        dotnet pack MapSharp.SourceGenerator/MapSharp.SourceGenerator.csproj \
-          --configuration Release \
-          --no-build \
-          --output ./nupkgs \
-          -p:PackageVersion=${{ steps.version.outputs.version }}
 
     - name: Pack MapSharp
       run: |
@@ -72,14 +62,10 @@ jobs:
 
     - name: Publish to NuGet (Prerelease)
       run: |
-        for package in ./nupkgs/*.nupkg; do
-          echo "Pushing $package"
-          dotnet nuget push "$package" \
-            --api-key ${{ secrets.NUGET_API_KEY }} \
-            --source https://api.nuget.org/v3/index.json \
-            --skip-duplicate
-        done
-      continue-on-error: true  # Don't fail if package already exists
+        dotnet nuget push ./nupkgs/MapSharp.*.nupkg \
+          --api-key ${{ secrets.NUGET_API_KEY }} \
+          --source https://api.nuget.org/v3/index.json \
+          --skip-duplicate
 
     - name: Upload packages as artifacts
       uses: actions/upload-artifact@v4

@@ -69,22 +69,6 @@ jobs:
     - name: Test
       run: dotnet test MapSharp.slnx --configuration Release --no-build --verbosity normal
 
-    - name: Pack Source Generator
-      run: |
-        if [ -n "${{ steps.version.outputs.suffix }}" ]; then
-          dotnet pack MapSharp.SourceGenerator/MapSharp.SourceGenerator.csproj \
-            --configuration Release \
-            --no-build \
-            --output ./nupkgs \
-            -p:PackageVersion=${{ steps.version.outputs.version }}-${{ steps.version.outputs.suffix }}
-        else
-          dotnet pack MapSharp.SourceGenerator/MapSharp.SourceGenerator.csproj \
-            --configuration Release \
-            --no-build \
-            --output ./nupkgs \
-            -p:PackageVersion=${{ steps.version.outputs.version }}
-        fi
-
     - name: Pack MapSharp
       run: |
         if [ -n "${{ steps.version.outputs.suffix }}" ]; then
@@ -106,13 +90,10 @@ jobs:
 
     - name: Publish to NuGet
       run: |
-        for package in ./nupkgs/*.nupkg; do
-          echo "Pushing $package"
-          dotnet nuget push "$package" \
-            --api-key ${{ secrets.NUGET_API_KEY }} \
-            --source https://api.nuget.org/v3/index.json \
-            --skip-duplicate
-        done
+        dotnet nuget push ./nupkgs/MapSharp.*.nupkg \
+          --api-key ${{ secrets.NUGET_API_KEY }} \
+          --source https://api.nuget.org/v3/index.json \
+          --skip-duplicate
 
     - name: Upload packages as artifacts
       uses: actions/upload-artifact@v4
