@@ -13,7 +13,7 @@
     <!-- Include source generator in the package -->
     <DevelopmentDependency>true</DevelopmentDependency>
     <IncludeBuildOutput>true</IncludeBuildOutput>
-    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <SuppressDependenciesWhenPacking>false</SuppressDependenciesWhenPacking>
   </PropertyGroup>
 
   <ItemGroup>
